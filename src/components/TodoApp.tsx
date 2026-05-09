@@ -195,27 +195,37 @@ export const TodoApp: React.FC<Props> = ({ setError }) => {
   const allUpdateList = useCallback(() => {
     if (todosFromServer) {
       if (todosFromServer.every(todo => todo.completed === true)) {
+        setActiveTodos([...todosFromServer]);
         Promise.all(
           todosFromServer.map(todo =>
             updateTodo({ ...todo, completed: false }),
           ),
-        ).then(() => {
-          setTodosFormServer(currentTodos =>
-            makeAll(currentTodos, Change.completedAll),
-          );
-          setTodos(currentTodos => makeAll(currentTodos, Change.completedAll));
-        });
+        )
+          .then(() => {
+            setTodosFormServer(currentTodos =>
+              makeAll(currentTodos, Change.completedAll),
+            );
+            setTodos(currentTodos =>
+              makeAll(currentTodos, Change.completedAll),
+            );
+          })
+          .finally(() => setActiveTodos(null));
       } else {
+        setActiveTodos([...todosFromServer]);
         Promise.all(
           todosFromServer
             .filter(todo => todo.completed === false)
             .map(todo => updateTodo({ ...todo, completed: true })),
-        ).then(() => {
-          setTodosFormServer(currentTodos =>
-            makeAll(currentTodos, Change.uncompleteAll),
-          );
-          setTodos(currentTodos => makeAll(currentTodos, Change.uncompleteAll));
-        });
+        )
+          .then(() => {
+            setTodosFormServer(currentTodos =>
+              makeAll(currentTodos, Change.uncompleteAll),
+            );
+            setTodos(currentTodos =>
+              makeAll(currentTodos, Change.uncompleteAll),
+            );
+          })
+          .finally(() => setActiveTodos(null));
       }
     }
   }, [updateTodo, todosFromServer]);

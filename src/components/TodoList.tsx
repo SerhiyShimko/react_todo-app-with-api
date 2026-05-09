@@ -62,13 +62,13 @@ export const TodoList: React.FC<Props> = ({
               htmlFor={`checkbox-${todo.id}`}
               className="todo__status-label"
             >
-              {''}
               <input
                 data-cy="TodoStatus"
                 type="checkbox"
                 id={`checkbox-${todo.id}`}
                 className="todo__status"
                 checked={todo.completed}
+                aria-label="Completed"
                 onChange={() => {
                   setActiveTodos([todo]);
                   updateTodo({ ...todo, completed: !todo.completed });
@@ -110,9 +110,7 @@ export const TodoList: React.FC<Props> = ({
                   type="button"
                   className="todo__remove"
                   data-cy="TodoDelete"
-                  onClick={() => {
-                    deleteTodo(todo.id, todo);
-                  }}
+                  onClick={() => deleteTodo(todo.id, todo)}
                 >
                   ×
                 </button>
@@ -142,10 +140,10 @@ export const TodoList: React.FC<Props> = ({
             htmlFor={`checkbox-${tempTodo.id}`}
             className="todo__status-label"
           >
-            {''}
             <input
               data-cy="TodoStatus"
               type="checkbox"
+              aria-label="Completed"
               id={`checkbox-${tempTodo.id}`}
               className="todo__status"
             />

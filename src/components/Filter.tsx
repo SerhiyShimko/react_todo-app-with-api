@@ -94,7 +94,7 @@ export const Filter: React.FC<Props> = ({
     filtrationTodos(selectedFilter);
   }, [todosFromServer]);
 
-  const clearCompleted = useCallback(() => {
+  const clearCompleted = useCallback(async () => {
     if (todosFromServer) {
       const needDelete = todosFromServer
         .filter(todo => todo.completed === true)
@@ -102,7 +102,7 @@ export const Filter: React.FC<Props> = ({
           return deleteTodo(todo.id, todo);
         });
 
-      Promise.all(needDelete);
+      await Promise.all(needDelete);
     }
   }, [todosFromServer, deleteTodo]);
 
@@ -137,9 +137,7 @@ export const Filter: React.FC<Props> = ({
         className="todoapp__clear-completed"
         data-cy="ClearCompletedButton"
         disabled={!todosFromServer?.some(todo => todo.completed === true)}
-        onClick={() => {
-          clearCompleted();
-        }}
+        onClick={clearCompleted}
       >
         Clear completed
       </button>
