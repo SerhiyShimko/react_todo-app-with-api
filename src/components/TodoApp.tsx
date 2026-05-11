@@ -47,7 +47,7 @@ export const TodoApp: React.FC<Props> = ({ setError }) => {
   const [todos, setTodos] = useState<Todo[] | null>(null);
   const [editing, setEditing] = useState<Todo | null>(null);
   const [loadingTodo, setLoadingTodo] = useState(false);
-  const [activeTodos, setActiveTodos] = useState<Todo[] | null>(null);
+  const [activeTodos, setActiveTodos] = useState<Todo[]>([]);
   const [todosFromServer, setTodosFormServer] = useState<Todo[] | null>(null);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [disabledInput, setDisabledInput] = useState(false);
@@ -73,7 +73,7 @@ export const TodoApp: React.FC<Props> = ({ setError }) => {
       .finally(() => {
         setEditing(null);
         setLoadingTodo(false);
-        setActiveTodos(null);
+        // setActiveTodos([]);
         setTimeout(() => {
           setError('');
         }, 3000);
@@ -148,6 +148,9 @@ export const TodoApp: React.FC<Props> = ({ setError }) => {
       return Interaction.deleteTodo(id)
         .then(() => {
           setTodos(prev => (prev ? prev.filter(todo => todo.id !== id) : []));
+          setActiveTodos(current =>
+            current ? current.filter(todo => todo.id !== id) : [],
+          );
           setTodosFormServer(prev =>
             prev ? prev.filter(todo => todo.id !== id) : [],
           );
@@ -157,7 +160,6 @@ export const TodoApp: React.FC<Props> = ({ setError }) => {
         })
         .finally(() => {
           focusOnInput();
-          setLoadingTodo(false);
         });
     },
     [setError, setTodos, setTodosFormServer, focusOnInput],
@@ -169,6 +171,9 @@ export const TodoApp: React.FC<Props> = ({ setError }) => {
         deleteTodo(newData.id, newData);
       } else {
         setLoadingTodo(true);
+        setActiveTodos(current =>
+          current ? [...current, newData] : [newData],
+        );
 
         return Interaction.updateTodo(newData)
           .then(() => {
@@ -178,15 +183,15 @@ export const TodoApp: React.FC<Props> = ({ setError }) => {
               );
               setTodos(currentTodos => changeElement(currentTodos, newData));
               setEditing(null);
-              setActiveTodos(null);
+              setActiveTodos(current =>
+                current ? current.filter(todo => todo.id !== newData.id) : [],
+              );
             }
           })
           .catch(() => {
             setError('Unable to update a todo');
           })
-          .finally(() => {
-            setLoadingTodo(false);
-          });
+          .finally(() => {});
       }
     },
     [setError, deleteTodo, todos, todosFromServer],
@@ -195,7 +200,6 @@ export const TodoApp: React.FC<Props> = ({ setError }) => {
   const allUpdateList = useCallback(() => {
     if (todosFromServer) {
       if (todosFromServer.every(todo => todo.completed === true)) {
-        setActiveTodos([...todosFromServer]);
         Promise.all(
           todosFromServer.map(todo =>
             updateTodo({ ...todo, completed: false }),
@@ -209,9 +213,8 @@ export const TodoApp: React.FC<Props> = ({ setError }) => {
               makeAll(currentTodos, Change.completedAll),
             );
           })
-          .finally(() => setActiveTodos(null));
+          .finally(() => setActiveTodos([]));
       } else {
-        setActiveTodos([...todosFromServer]);
         Promise.all(
           todosFromServer
             .filter(todo => todo.completed === false)
@@ -225,7 +228,7 @@ export const TodoApp: React.FC<Props> = ({ setError }) => {
               makeAll(currentTodos, Change.uncompleteAll),
             );
           })
-          .finally(() => setActiveTodos(null));
+          .finally(() => setActiveTodos([]));
       }
     }
   }, [updateTodo, todosFromServer]);
@@ -276,7 +279,7 @@ export const TodoApp: React.FC<Props> = ({ setError }) => {
           editing={editing}
           setEditing={prev => setEditing(prev)}
           loadingTodo={loadingTodo}
-          setActiveTodos={prev => setActiveTodos(prev)}
+          setActiveTodos={setActiveTodos}
           activeTodos={activeTodos}
           tempTodo={tempTodo}
         />

@@ -10,7 +10,7 @@ type Props = {
   editing: Todo | null;
   setEditing: (todo: Todo | null) => void;
   loadingTodo: boolean;
-  setActiveTodos: (todo: Todo[] | null) => void;
+  setActiveTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
   activeTodos: Todo[] | null;
   tempTodo: Todo | null;
 };
@@ -34,7 +34,7 @@ export const TodoList: React.FC<Props> = ({
         updateTodo({ ...currentTodo, title: editedValue.trim() });
       } else {
         setEditing(null);
-        setActiveTodos(null);
+        setActiveTodos([]);
         setEditedValue('');
       }
     },
@@ -53,7 +53,6 @@ export const TodoList: React.FC<Props> = ({
             })}
             onDoubleClick={e => {
               e.preventDefault();
-              setActiveTodos([todo]);
               setEditing(todo);
               setEditedValue(todo.title);
             }}
@@ -70,7 +69,6 @@ export const TodoList: React.FC<Props> = ({
                 checked={todo.completed}
                 aria-label="Completed"
                 onChange={() => {
-                  setActiveTodos([todo]);
                   updateTodo({ ...todo, completed: !todo.completed });
                 }}
               />
@@ -94,7 +92,7 @@ export const TodoList: React.FC<Props> = ({
                   onKeyUp={e => {
                     if (e.key === 'Escape') {
                       setEditing(null);
-                      setActiveTodos(null);
+                      setActiveTodos([]);
                       setEditedValue('');
                     }
                   }}
